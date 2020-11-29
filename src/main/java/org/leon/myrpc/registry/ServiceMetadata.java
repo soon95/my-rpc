@@ -29,4 +29,10 @@ public class ServiceMetadata {
      */
     private Integer port;
 
+    public ServiceMetadata(String serviceName, String serviceVersion, String address, Integer port) {
+        this.serviceName = serviceName;
+        this.serviceVersion = serviceVersion;
+        this.address = address;
+        this.port = port;
+    }
 }
