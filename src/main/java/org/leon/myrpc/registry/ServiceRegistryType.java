@@ -8,6 +8,10 @@ public enum ServiceRegistryType {
     /**
      * nacos注册中心
      */
-    NACOS
+    NACOS,
+    /**
+     * zookeeper注册中心
+     */
+    ZOOKEEPER;
 
 }

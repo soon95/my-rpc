@@ -12,37 +12,40 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import lombok.extern.slf4j.Slf4j;
 import org.leon.myrpc.annotation.RPCProvider;
+import org.leon.myrpc.protocol.RpcDecoder;
+import org.leon.myrpc.protocol.RpcEncoder;
 import org.leon.myrpc.registry.ServiceMetadata;
 import org.leon.myrpc.registry.ServiceRegistry;
 import org.leon.myrpc.registry.zookeeper.ProviderUtils;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author Leon Song
  * @date 2020-11-29
  */
 @Slf4j
-public class RpcProvider implements BeanPostProcessor {
+public class RpcProvider implements InitializingBean, BeanPostProcessor {
 
     private static ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("rpc-provider-pool-%d").build();
 
     /**
      * 这个需要写成单例模式
      */
-    private static ThreadPoolExecutor threadPoolExecutor;
+    private volatile static ThreadPoolExecutor threadPoolExecutor;
 
 
     private String serverAddress;
     private ServiceRegistry serviceRegistry;
-    private Map<String, Object> handlerMap = new HashMap<>(16);
+
+    /**
+     * 可能要考虑线程安全
+     */
+    private Map<String, Object> handlerMap = new ConcurrentHashMap<>(16);
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
 
@@ -79,9 +82,10 @@ public class RpcProvider implements BeanPostProcessor {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
                             socketChannel.pipeline()
-                                    .addLast(new LengthFieldBasedFrameDecoder(65536, 0, 4, 0, 0));
-                            // TODO 这里还少很多 序列化相关
-
+                                    .addLast(new LengthFieldBasedFrameDecoder(65536, 0, 4, 0, 0))
+                                    .addLast(new RpcEncoder())
+                                    .addLast(new RpcDecoder())
+                                    .addLast(new RpcProviderHandler(handlerMap));
                         }
                     })
                     .option(ChannelOption.SO_BACKLOG, 128)
@@ -136,5 +140,21 @@ public class RpcProvider implements BeanPostProcessor {
         }
 
         return bean;
+    }
+
+    /**
+     * bean装配好了之后就注册到注册中心
+     *
+     * @throws Exception
+     */
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        new Thread(() -> {
+            try {
+                this.start();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 }

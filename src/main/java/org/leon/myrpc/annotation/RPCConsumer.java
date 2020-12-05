@@ -1,6 +1,6 @@
 package org.leon.myrpc.annotation;
 
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -8,17 +8,19 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 服务生产者注解
+ * rpc消费者注解
  *
  * @author Leon Song
- * @date 2020-11-29
+ * @date 2020-12-05
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-@Component
-public @interface RPCProvider {
-
-    Class<?> serviceInterface() default Object.class;
+@Target(ElementType.FIELD)
+@Autowired
+public @interface RPCConsumer {
 
     String serviceVersion() default "1.0.0";
+
+    String registryType() default "zookeeper";
+
+    String registryAddress() default "127.0.0.1:2181";
 }
