@@ -1,6 +1,5 @@
 package org.leon.myrpc.consumer;
 
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.leon.myrpc.registry.ServiceRegistryFactory;
 import org.leon.myrpc.registry.ServiceRegistryType;
@@ -11,7 +10,6 @@ import org.springframework.beans.factory.FactoryBean;
  * @date 2020-12-05
  */
 @Slf4j
-@Data
 public class RpcConsumerBean implements FactoryBean {
 
     private Class<?> interfaceClass;
@@ -45,5 +43,37 @@ public class RpcConsumerBean implements FactoryBean {
                         this.registryAddress));
 
         log.info("RpcConsumerBean {} init...", interfaceClass.getName());
+    }
+
+    public Class<?> getInterfaceClass() {
+        return interfaceClass;
+    }
+
+    public void setInterfaceClass(Class<?> interfaceClass) {
+        this.interfaceClass = interfaceClass;
+    }
+
+    public String getServiceVersion() {
+        return serviceVersion;
+    }
+
+    public void setServiceVersion(String serviceVersion) {
+        this.serviceVersion = serviceVersion;
+    }
+
+    public String getRegistryType() {
+        return registryType;
+    }
+
+    public void setRegistryType(String registryType) {
+        this.registryType = registryType;
+    }
+
+    public String getRegistryAddress() {
+        return registryAddress;
+    }
+
+    public void setRegistryAddress(String registryAddress) {
+        this.registryAddress = registryAddress;
     }
 }

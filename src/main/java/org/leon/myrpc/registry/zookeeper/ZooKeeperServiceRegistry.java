@@ -29,7 +29,7 @@ public class ZooKeeperServiceRegistry implements ServiceRegistry {
 
     private CuratorFramework client;
 
-    private ReentrantLock lock;
+    private ReentrantLock lock = new ReentrantLock();
 
     private ServiceDiscovery<ServiceMetadata> serviceDiscovery;
 

@@ -1,11 +1,13 @@
 package org.leon.myrpc.registry;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author Leon Song
  * @date 2020-11-28
  */
+@NoArgsConstructor
 @Data
 public class ServiceMetadata {
 
