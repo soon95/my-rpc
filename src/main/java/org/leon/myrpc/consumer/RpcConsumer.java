@@ -15,6 +15,9 @@ import org.leon.myrpc.registry.ServiceRegistry;
 import org.leon.myrpc.registry.zookeeper.ProviderUtils;
 
 import java.lang.reflect.Proxy;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author Leon Song
@@ -23,7 +26,9 @@ import java.lang.reflect.Proxy;
 @Slf4j
 public class RpcConsumer extends SimpleChannelInboundHandler<RpcResponse> {
 
-    private Object lock = new Object();
+    private Lock lock = new ReentrantLock();
+    private Condition condition = lock.newCondition();
+
     private ServiceRegistry registry;
     private EventLoopGroup eventLoopGroup = new NioEventLoopGroup(4);
     private Channel channel;
@@ -82,8 +87,11 @@ public class RpcConsumer extends SimpleChannelInboundHandler<RpcResponse> {
 
 
             // 在这里等待远程结果
-            synchronized (this.lock) {
-                this.lock.wait();
+            this.lock.lock();
+            try {
+                this.condition.await();
+            } finally {
+                this.lock.unlock();
             }
 
 
@@ -121,8 +129,11 @@ public class RpcConsumer extends SimpleChannelInboundHandler<RpcResponse> {
         this.response = msg;
 
         // 拿到结果后主动唤起等待线程
-        synchronized (this.lock) {
-            this.lock.notifyAll();
+        this.lock.lock();
+        try {
+            this.condition.signalAll();
+        } finally {
+            this.lock.unlock();
         }
     }
 }
