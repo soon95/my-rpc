@@ -20,7 +20,7 @@ public @interface RPCConsumer {
 
     String serviceVersion() default "1.0.0";
 
-    String registryType() default "zookeeper";
+    String registryType() default "ZOOKEEPER";
 
     String registryAddress() default "127.0.0.1:2181";
 }

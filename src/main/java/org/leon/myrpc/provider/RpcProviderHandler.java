@@ -35,6 +35,7 @@ public class RpcProviderHandler extends SimpleChannelInboundHandler<RpcRequest> 
             response.setRequestId(rpcRequest.getRequestId());
             try {
                 Object result = this.handle(rpcRequest);
+                response.setResult(result);
             } catch (Throwable e) {
                 response.setError(e.toString());
                 log.error("RPC server handler request error", e);

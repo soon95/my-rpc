@@ -3,6 +3,7 @@ package org.leon.myrpc.consumer;
 import org.leon.myrpc.provider.RpcProperties;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -13,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties(RpcProperties.class)
 public class RpcConsumerAutoConfiguration {
 
+    @Bean
     public BeanFactoryPostProcessor rpcConsumerPostProcess() {
         return new RpcConsumerPostProcessor();
     }

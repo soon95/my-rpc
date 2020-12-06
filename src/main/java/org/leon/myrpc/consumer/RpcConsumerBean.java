@@ -24,7 +24,7 @@ public class RpcConsumerBean implements FactoryBean {
 
     @Override
     public Object getObject() throws Exception {
-        return this.getObject();
+        return this.object;
     }
 
     @Override
